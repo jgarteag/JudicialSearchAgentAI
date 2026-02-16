@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from domain.use_cases import BuscarRadicadosEnPDF
+from domain.use_cases import BuscarRadicadosEnPDF, ExportarRadicadosCSV
 from infrastructure.mongodb_juzgado_repository import MongoDBJuzgadoRepository
 from infrastructure.pypdf_reader import PyPDFReader
 from infrastructure.telegram_bot import TelegramBot
@@ -30,8 +30,13 @@ def main():
         pdf_reader=pdf_reader
     )
     
+    exportar_csv_use_case = ExportarRadicadosCSV(
+        juzgado_repository=juzgado_repo
+    )
+    
     bot_service = BotService(
         buscar_radicados_use_case=buscar_radicados_use_case,
+        exportar_csv_use_case=exportar_csv_use_case,
         juzgado_repository=juzgado_repo
     )
     
@@ -40,6 +45,7 @@ def main():
     telegram_bot.registrar_comando_start(bot_service.handle_start)
     telegram_bot.registrar_comando_juzgados(bot_service.handle_juzgados)
     telegram_bot.registrar_comando_buscar(bot_service.handle_comando_buscar)
+    telegram_bot.registrar_comando_consulta(bot_service.handle_consulta)
     telegram_bot.registrar_handler_documento(bot_service.handle_documento)
     telegram_bot.registrar_handler_texto(bot_service.handle_texto)
     
