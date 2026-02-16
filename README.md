@@ -85,6 +85,12 @@ El bot se actualizará automáticamente con el código nuevo de GitHub.
 5. Escribe el número del juzgado
 6. Recibe los radicados encontrados
 
+### Comandos disponibles
+
+- `/start` - Iniciar el bot y ver ayuda
+- `/buscar` o `/juzgados` - Ver lista de juzgados disponibles
+- `/consulta` - Descargar CSV consolidado con todos los radicados de todas las colecciones
+
 ## 📊 Monitoreo
 
 ### Ver estado de la instancia
