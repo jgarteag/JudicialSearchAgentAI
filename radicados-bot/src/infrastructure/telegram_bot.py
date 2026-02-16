@@ -55,3 +55,8 @@ class TelegramBot:
     def iniciar(self):
         print("Bot iniciado...")
         self._app.run_polling()
+
+    def registrar_comando_consulta(self, handler: Callable):
+        async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            await handler(update, context)
+        self._app.add_handler(CommandHandler("consulta", wrapper))

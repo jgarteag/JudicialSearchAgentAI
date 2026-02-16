@@ -4,7 +4,7 @@ from typing import Dict
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from domain.use_cases import BuscarRadicadosEnPDF
+from domain.use_cases import BuscarRadicadosEnPDF, ExportarRadicadosCSV
 from domain.ports import JuzgadoRepository
 
 
@@ -14,20 +14,21 @@ class BotService:
     def __init__(
         self,
         buscar_radicados_use_case: BuscarRadicadosEnPDF,
+        exportar_csv_use_case: ExportarRadicadosCSV,
         juzgado_repository: JuzgadoRepository
     ):
         self._buscar_radicados = buscar_radicados_use_case
+        self._exportar_csv = exportar_csv_use_case
         self._juzgado_repo = juzgado_repository
         self._user_states: Dict[int, dict] = {}
     
     async def handle_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             "¡Hola! 👋 Soy tu asistente para buscar radicados.\n\n"
-            "📋 Cómo usar:\n"
-            "1. Envíame uno o varios PDFs\n"
-            "2. Usa /buscar para ver los juzgados\n"
-            "3. Escribe el número del juzgado\n"
-            "4. ¡Listo! Te diré qué radicados encontré\n\n"
+            "📋 Comandos disponibles:\n"
+            "• Envía PDFs para buscar radicados\n"
+            "• /buscar - Ver juzgados y buscar\n"
+            "• /consulta - Descargar CSV con todos los radicados\n\n"
             "💡 Tip: Puedes enviar varios PDFs antes de buscar"
         )
     
@@ -172,3 +173,29 @@ class BotService:
         except Exception as e:
             await update.message.reply_text(f"❌ Error al procesar los PDFs: {str(e)}")
 
+
+    async def handle_consulta(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Handler para comando /consulta - exporta todos los radicados a CSV"""
+        await update.message.reply_text("📊 Generando reporte CSV de todos los radicados...")
+        
+        try:
+            csv_content = self._exportar_csv.ejecutar()
+            
+            # Crear archivo temporal
+            temp_file = f"temp_radicados_{update.effective_user.id}.csv"
+            with open(temp_file, 'w', encoding='utf-8') as f:
+                f.write(csv_content)
+            
+            # Enviar archivo
+            with open(temp_file, 'rb') as f:
+                await update.message.reply_document(
+                    document=f,
+                    filename="radicados_consolidado.csv",
+                    caption="✅ Reporte consolidado de todos los radicados"
+                )
+            
+            # Eliminar archivo temporal
+            os.remove(temp_file)
+            
+        except Exception as e:
+            await update.message.reply_text(f"❌ Error al generar el reporte: {str(e)}")

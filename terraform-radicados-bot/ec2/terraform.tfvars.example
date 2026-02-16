@@ -1,0 +1,7 @@
+aws_region         = "us-east-1"
+aws_profile        = "SandboxNQ"
+instance_type      = "t3.micro"
+key_name           = "your-key-name"
+mongodb_uri        = "mongodb+srv://user:pass@cluster.mongodb.net/"
+telegram_bot_token = "your-telegram-token"
+git_repo_url       = "https://github.com/your-user/radicados-bot.git"
